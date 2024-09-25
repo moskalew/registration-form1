@@ -21,7 +21,7 @@ export const Register = () => {
   };
 
   const onEmailBlur = () => {
-    if (!/\S+@\S+\.\S+/.test(email)) {
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
       setEmailError('Неверный адрес электронной почты');
     }
   };
@@ -44,7 +44,7 @@ export const Register = () => {
 
   const onConfirmPasswordBlur = () => {
     if (confirmPassword !== password) {
-      setConfirmPasswordError('Пароли не совпадают');
+      setConfirmPasswordError('Пароли не совпадают!');
     }
   };
 
