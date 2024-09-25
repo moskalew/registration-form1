@@ -1,4 +1,6 @@
-.register-form {
+/* Register.module.css */
+
+.registerForm {
   background-color: #333;
   color: #fff;
   max-width: 400px;
@@ -10,10 +12,13 @@
 
 h2 {
   color: #ff9800;
+  text-align: center;
 }
 
 .form-group {
   margin-bottom: 15px;
+  display: flex; /* Используем flex для выравнивания */
+  flex-direction: column;
 }
 
 label {
@@ -23,21 +28,23 @@ label {
 }
 
 input {
-  width: 95%;
+  width: 100%; /* Ширина инпутов */
   padding: 10px;
+  margin-bottom: 20px;
   border: 1px solid #ff9800;
   border-radius: 5px;
   background-color: #222;
   color: #fff;
+  box-sizing: border-box; /* Учитываем отступы в ширине */
 }
 
 input:focus {
   outline: none;
-  border-color: #ff5722;
+  border-color: #137236;
 }
 
 button {
-  width: 100%;
+  width: 100%; /* Ширина кнопки */
   padding: 10px;
   background-color: #ff9800;
   border: none;
@@ -52,12 +59,15 @@ button:disabled {
   cursor: not-allowed;
 }
 
-.error {
+.errorLabel {
   color: red;
   font-size: 12px;
 }
 
 .success {
+  text-align: center;
   color: green;
-  font-size: 14px;
+  font-size: 12px;
+  margin-top: 10px;
+  font-weight: bold;
 }

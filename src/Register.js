@@ -1,114 +1,113 @@
-import React, { useState } from 'react';
-import './Register.css';
+import { useState } from 'react';
+import styles from './Register.module.css';
 
-const Register = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+const sendFormData = (formData) => {
+  console.log(formData);
+};
 
-  const [errors, setErrors] = useState({});
+export const Register = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [emailError, setEmailError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const onEmailChange = ({ target }) => {
+    setEmail(target.value);
+    setEmailError(null); // Очищаем ошибку при вводе
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Валидация email
-    if (!formData.email) {
-      newErrors.email = 'Введите email';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Неверный адрес электронной почты';
+  const onEmailBlur = () => {
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Неверный адрес электронной почты');
     }
-
-    // Валидация пароля
-    if (!formData.password) {
-      newErrors.password = 'Введите пароль';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Пароль должен быть не менее 6 символов';
-    }
-
-    // Валидация подтверждения пароля
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Пароли не совпадают';
-    }
-
-    return newErrors;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formErrors = validateForm();
+  const onPasswordChange = ({ target }) => {
+    setPassword(target.value);
+    setPasswordError(null); // Очищаем ошибку при вводе
+  };
 
-    if (Object.keys(formErrors).length === 0) {
+  const onPasswordBlur = () => {
+    if (password.length < 6) {
+      setPasswordError('Пароль должен быть не менее 6 символов');
+    }
+  };
+
+  const onConfirmPasswordChange = ({ target }) => {
+    setConfirmPassword(target.value);
+    setConfirmPasswordError(null); // Очищаем ошибку при вводе
+  };
+
+  const onConfirmPasswordBlur = () => {
+    if (confirmPassword !== password) {
+      setConfirmPasswordError('Пароли не совпадают');
+    }
+  };
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+
+    if (!emailError && !passwordError && !confirmPasswordError) {
+      sendFormData({ email, password, confirmPassword });
       setIsSubmitted(true);
-      console.log(formData);
-    } else {
-      setErrors(formErrors);
+      // Сбрасываем форму после отправки
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
     }
-  };
-
-  const isFormValid = () => {
-    return (
-      formData.email &&
-      formData.password &&
-      formData.confirmPassword &&
-      Object.keys(errors).length === 0
-    );
   };
 
   return (
-    <div className="register-form">
-      <h2>Регистрация</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Адрес электронной почты</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          {errors.email && <p className="error">{errors.email}</p>}
-        </div>
+    <div className={styles.registerForm}>
+      <h2 className="styles.H2">Регистрация</h2>
+      <form onSubmit={onSubmit}>
+        {emailError && <div className={styles.errorLabel}>{emailError}</div>}
+        <input
+          name="email"
+          type="email"
+          value={email}
+          placeholder="E-mail"
+          onChange={onEmailChange}
+          onBlur={onEmailBlur} // Проверяем email при потере фокуса
+        />
 
-        <div className="form-group">
-          <label>Пароль</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          {errors.password && <p className="error">{errors.password}</p>}
-        </div>
+        {passwordError && (
+          <div className={styles.errorLabel}>{passwordError}</div>
+        )}
+        <input
+          name="password"
+          type="password"
+          value={password}
+          placeholder="Пароль"
+          onChange={onPasswordChange}
+          onBlur={onPasswordBlur} // Проверяем пароль при потере фокуса
+        />
 
-        <div className="form-group">
-          <label>Повторите пароль</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
-          {errors.confirmPassword && (
-            <p className="error">{errors.confirmPassword}</p>
-          )}
-        </div>
+        {confirmPasswordError && (
+          <div className={styles.errorLabel}>{confirmPasswordError}</div>
+        )}
+        <input
+          name="confirmPassword"
+          type="password"
+          value={confirmPassword}
+          placeholder="Подтвердите пароль"
+          onChange={onConfirmPasswordChange}
+          onBlur={onConfirmPasswordBlur} // Проверяем подтверждение пароля при потере фокуса
+        />
 
-        <button type="submit" disabled={!isFormValid()}>
-          Register
+        <button
+          type="submit"
+          disabled={!!emailError || !!passwordError || !!confirmPasswordError}
+        >
+          Зарегистрироваться
         </button>
       </form>
 
-      {isSubmitted && <p className="success">Данные отправлены</p>}
+      {isSubmitted && <div className={styles.success}>Форма отправлена!</div>}
     </div>
   );
 };
