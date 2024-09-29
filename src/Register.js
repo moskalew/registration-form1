@@ -1,113 +1,83 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
 import styles from './Register.module.css';
 
 const sendFormData = (formData) => {
   console.log(formData);
 };
 
+const validationSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Неверный адрес электронной почты')
+    .required('Email обязателен'),
+  password: Yup.string()
+    .min(6, 'Пароль должен быть не менее 6 символов')
+    .required('Пароль обязателен'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Пароли не совпадают!')
+    .required('Подтверждение пароля обязательно'),
+});
+
 export const Register = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
-  const [emailError, setEmailError] = useState(null);
-  const [passwordError, setPasswordError] = useState(null);
-  const [confirmPasswordError, setConfirmPasswordError] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const onEmailChange = ({ target }) => {
-    setEmail(target.value);
-    setEmailError(null); // Очищаем ошибку при вводе
-  };
-
-  const onEmailBlur = () => {
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-      setEmailError('Неверный адрес электронной почты');
-    }
-  };
-
-  const onPasswordChange = ({ target }) => {
-    setPassword(target.value);
-    setPasswordError(null); // Очищаем ошибку при вводе
-  };
-
-  const onPasswordBlur = () => {
-    if (password.length < 6) {
-      setPasswordError('Пароль должен быть не менее 6 символов');
-    }
-  };
-
-  const onConfirmPasswordChange = ({ target }) => {
-    setConfirmPassword(target.value);
-    setConfirmPasswordError(null); // Очищаем ошибку при вводе
-  };
-
-  const onConfirmPasswordBlur = () => {
-    if (confirmPassword !== password) {
-      setConfirmPasswordError('Пароли не совпадают!');
-    }
-  };
-
-  const onSubmit = (event) => {
-    event.preventDefault();
-
-    if (!emailError && !passwordError && !confirmPasswordError) {
-      sendFormData({ email, password, confirmPassword });
-      setIsSubmitted(true);
-      // Сбрасываем форму после отправки
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-    }
+  const onSubmit = (data) => {
+    sendFormData(data);
+    reset(); // Сбросить форму после отправки
   };
 
   return (
     <div className={styles.registerForm}>
-      <h2 className="styles.H2">Регистрация</h2>
-      <form onSubmit={onSubmit}>
-        {emailError && <div className={styles.errorLabel}>{emailError}</div>}
-        <input
-          name="email"
-          type="email"
-          value={email}
-          placeholder="E-mail"
-          onChange={onEmailChange}
-          onBlur={onEmailBlur} // Проверяем email при потере фокуса
-        />
+      <h2 className={styles.H2}>Регистрация</h2>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <input
+            name="email"
+            type="email"
+            placeholder="E-mail"
+            {...register('email')}
+          />
+          {errors.email && (
+            <div className={styles.errorLabel}>{errors.email.message}</div>
+          )}
+        </div>
 
-        {passwordError && (
-          <div className={styles.errorLabel}>{passwordError}</div>
-        )}
-        <input
-          name="password"
-          type="password"
-          value={password}
-          placeholder="Пароль"
-          onChange={onPasswordChange}
-          onBlur={onPasswordBlur} // Проверяем пароль при потере фокуса
-        />
+        <div>
+          <input
+            name="password"
+            type="password"
+            placeholder="Пароль"
+            {...register('password')}
+          />
+          {errors.password && (
+            <div className={styles.errorLabel}>{errors.password.message}</div>
+          )}
+        </div>
 
-        {confirmPasswordError && (
-          <div className={styles.errorLabel}>{confirmPasswordError}</div>
-        )}
-        <input
-          name="confirmPassword"
-          type="password"
-          value={confirmPassword}
-          placeholder="Подтвердите пароль"
-          onChange={onConfirmPasswordChange}
-          onBlur={onConfirmPasswordBlur} // Проверяем подтверждение пароля при потере фокуса
-        />
+        <div>
+          <input
+            name="confirmPassword"
+            type="password"
+            placeholder="Подтвердите пароль"
+            {...register('confirmPassword')}
+          />
+          {errors.confirmPassword && (
+            <div className={styles.errorLabel}>
+              {errors.confirmPassword.message}
+            </div>
+          )}
+        </div>
 
-        <button
-          type="submit"
-          disabled={!!emailError || !!passwordError || !!confirmPasswordError}
-        >
-          Зарегистрироваться
-        </button>
+        <button type="submit">Зарегистрироваться</button>
       </form>
-
-      {isSubmitted && <div className={styles.success}>Форма отправлена!</div>}
     </div>
   );
 };
